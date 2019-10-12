@@ -56,7 +56,38 @@ PET_ZERO    = $30       ; '0' char in petscii
 !zone TEST_BubbleSort
 TEST_BubbleSort
         inc CUR_TEST
-        rts
+
+.BubbleSetup
+        ; unsorted list should be at $8000 (see below)
+        lda #< UNSORTED_LIST_1
+        sta PARAM1  
+        lda #> UNSORTED_LIST_1
+        sta PARAM2
+
+        lda #$08
+        sta PARAM3
+
+        jsr SORT_Bubble8Bit
+
+        ; best to use a monitor to check this...
+        lda RETVAL1
+        cmp #$05
+        bne .ErrorFound
+
+        ldx #$00
+.CheckLoop
+        lda UNSORTED_LIST_1,x
+        cmp SORTED_LIST_1,x
+        bne .ErrorFound
+        inx
+        cpx #$08
+        bne .CheckLoop
+
+        ; add number of passes to '0' char and show in top left corner (row 2)
+        clc
+        adc PET_ZERO
+        sta CUR_TEST + 40       ; show number of passes on 2nd row
+        jmp .NoError
 
 .ErrorFound
         lda #BLACK
@@ -72,3 +103,12 @@ TEST_BubbleSort
         
         * = $2000
         !source "maths/multiply8bit.a"
+        * = $2400
+        !source "sort/bubblesort.a"
+
+!zone TEST_SortData
+        * = $8000
+UNSORTED_LIST_1
+        !byte $04, $53, $ff, $01, $69, $02, $80, $53
+SORTED_LIST_1
+        !byte $01, $02, $04, $53, $53, $69, $80, $ff
