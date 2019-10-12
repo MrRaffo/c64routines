@@ -1,0 +1,48 @@
+; tests for the c64 subroutines
+
+!source "common/common.a"      ; sort of a 'header' file
+; set up the values to multiply and the results
+EXPECTED_LO = $02a7    ; some unused memory
+EXPECTED_HI = $02a8
+
+        * = $0801
+
+        ; Autostart - SYS2064 in BASIC
+        !byte $0c, $08, $0a, $00, $9e, $20, $32, $30, $36, $34, $00, $00, $00, $00, $00
+
+        lda #$05
+        sta PARAM1
+        lda #$08
+        sta PARAM2
+
+        ; prepare the expected values
+        lda #$00
+        sta EXPECTED_HI
+        lda #$28
+        sta EXPECTED_LO
+
+        jsr MATHS_Multiply8Bit
+
+        lda RETVAL1
+        cmp EXPECTED_LO
+        bne .ErrorFound
+        lda RETVAL2
+        cmp EXPECTED_HI
+        bne .ErrorFound
+
+        jmp .NoError
+
+.ErrorFound
+        lda #BLACK
+        sta $d020       ; border colour
+        jmp .End
+
+.NoError
+        lda #GREEN
+        sta $d020
+        
+.End
+        rts
+        
+        * = $2000
+        !source "maths/multiply8bit.a"
