@@ -1,6 +1,6 @@
 ; tests for the c64 subroutines
 
-!source "common/common.a"      ; sort of a 'header' file
+!source "common/common.asm"      ; sort of a 'header' file
 ; set up the values to multiply and the results
 EXPECTED_LO = $02a7     ; some unused memory
 EXPECTED_HI = $02a8
@@ -102,9 +102,9 @@ TEST_BubbleSort
         rts
         
         * = $2000
-        !source "maths/multiply8bit.a"
+        !source "maths/multiply8bit.asm"
         * = $2400
-        !source "sort/bubblesort.a"
+        !source "sort/bubblesort.asm"
 
 !zone TEST_SortData
         * = $8000
