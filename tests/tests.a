@@ -2,14 +2,21 @@
 
 !source "common/common.a"      ; sort of a 'header' file
 ; set up the values to multiply and the results
-EXPECTED_LO = $02a7    ; some unused memory
+EXPECTED_LO = $02a7     ; some unused memory
 EXPECTED_HI = $02a8
+CUR_TEST    = $0400     ; start of screen memory
+PET_ZERO    = $30       ; '0' char in petscii
 
         * = $0801
 
         ; Autostart - SYS2064 in BASIC
         !byte $0c, $08, $0a, $00, $9e, $20, $32, $30, $36, $34, $00, $00, $00, $00, $00
 
+        lda #PET_ZERO
+        sta CUR_TEST
+        inc CUR_TEST
+
+!zone TEST_Multiply8Bit
         lda #$05
         sta PARAM1
         lda #$08
@@ -33,6 +40,7 @@ EXPECTED_HI = $02a8
         jmp .NoError
 
 .ErrorFound
+        ; return to BASIC, top left corner should give index of failing test
         lda #BLACK
         sta $d020       ; border colour
         jmp .End
@@ -40,7 +48,25 @@ EXPECTED_HI = $02a8
 .NoError
         lda #GREEN
         sta $d020
+        jmp TEST_BubbleSort
         
+.End
+        rts
+
+!zone TEST_BubbleSort
+TEST_BubbleSort
+        inc CUR_TEST
+        rts
+
+.ErrorFound
+        lda #BLACK
+        sta $d020
+        jmp .End
+
+.NoError
+        lda #GREEN
+        sta $d020
+
 .End
         rts
         
